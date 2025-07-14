@@ -1,0 +1,13 @@
+{
+  "name": "chatb-ai",
+  "version": "1.0.0",
+  "description": "ChatB AI Express Server",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "axios": "^1.6.7"
+  }
+}
