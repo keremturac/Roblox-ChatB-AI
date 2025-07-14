@@ -1,45 +1,41 @@
-const express = require("express");
-const axios = require("axios");
+const express = require('express');
+const cors = require('cors');
+const { Configuration, OpenAIApi } = require('openai');
+require('dotenv').config();
+
 const app = express();
 const port = process.env.PORT || 3000;
 
-require("dotenv").config(); // .env desteği
-
+app.use(cors());
 app.use(express.json());
 
-app.get("/", (req, res) => {
-  res.send("✅ API aktif, çalışıyor!");
+const configuration = new Configuration({
+  apiKey: process.env.OPENAI_API_ANAHTAR,
+});
+const openai = new OpenAIApi(configuration);
+
+app.get('/', (req, res) => {
+  res.send('✅ API aktif, çalışıyor!');
 });
 
-app.post("/chat", async (req, res) => {
+app.post('/chat', async (req, res) => {
   const userMessage = req.body.message;
-
-  console.log("🟡 Gelen istek:", userMessage); // Gelen mesajı kontrol et
+  console.log("Gelen istek:", userMessage);
 
   try {
-    const response = await axios.post(
-      "https://api.openai.com/v1/chat/completions",
-      {
-        model: "gpt-3.5-turbo",
-        messages: [{ role: "user", content: userMessage }],
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-        },
-      }
-    );
+    const completion = await openai.createChatCompletion({
+      model: 'gpt-3.5-turbo',
+      messages: [{ role: 'user', content: userMessage }],
+    });
 
-    const botReply = response.data.choices[0].message.content;
-    console.log("🟢 Cevap:", botReply);
+    const botReply = completion.data.choices[0].message.content;
     res.json({ reply: botReply });
   } catch (error) {
-    console.error("🔴 OpenAI API hatası:", error.response?.data || error.message);
-    res.status(500).json({ error: "ChatGPT API hatası" });
+    console.error("OpenAI API hatası:", error.response ? error.response.data : error.message);
+    res.status(500).json({ error: 'Sunucu hatası: OpenAI isteği başarısız' });
   }
 });
 
 app.listen(port, () => {
-  console.log(`✅ Server çalışıyor: http://localhost:${port}`);
+  console.log(`✅ Sunucu çalışıyor: http://localhost:${port}`);
 });
