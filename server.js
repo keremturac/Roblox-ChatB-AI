@@ -1,5 +1,4 @@
-// server.js
-require('dotenv').config(); // <== BU ÇOK ÖNEMLİ
+require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
 const app = express();
@@ -28,11 +27,11 @@ app.post('/chat', async (req, res) => {
     const botReply = response.data.choices[0].message.content;
     res.json({ reply: botReply });
   } catch (error) {
-    console.error('OpenAI API error:', error.response?.data || error.message);
+    console.error('❌ OpenAI API error:', error.response?.data || error.message);
     res.status(500).json({ error: 'ChatGPT API error' });
   }
 });
 
 app.listen(port, () => {
-  console.log(`✅ Server is running on http://localhost:${port}`);
+  console.log(`✅ Server running at http://localhost:${port}`);
 });
