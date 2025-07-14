@@ -1,40 +1,22 @@
+require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
-require('dotenv').config(); // .env dosyasını okuyabilmek için
-
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
 
-// Test endpoint – tarayıcıdan /test yazınca çalışır mı kontrol eder
-app.get("/test", async (req, res) => {
-  try {
-    const response = await axios.post(
-      'https://api.openai.com/v1/chat/completions',
-      {
-        model: 'gpt-3.5-turbo',
-        messages: [{ role: 'user', content: 'Merhaba' }]
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
-        }
-      }
-    );
-
-    const reply = response.data.choices[0].message.content;
-    res.send(reply);
-  } catch (error) {
-    console.error("API Hatası:", error.response?.data || error.message);
-    res.status(500).send("❌ OpenAI API çalışmıyor");
-  }
+// Test endpoint
+app.get('/test', (req, res) => {
+  res.send('✅ API aktif, çalışıyor!');
 });
 
-// Gerçek sohbet endpoint’i – Roblox burayı kullanır
-app.post("/chat", async (req, res) => {
+app.post('/chat', async (req, res) => {
   const userMessage = req.body.message;
+
+  if (!userMessage) {
+    return res.status(400).json({ error: 'Mesaj boş olamaz.' });
+  }
 
   try {
     const response = await axios.post(
@@ -51,14 +33,15 @@ app.post("/chat", async (req, res) => {
       }
     );
 
-    const reply = response.data.choices[0].message.content;
-    res.json({ reply });
+    const botReply = response.data.choices[0].message.content;
+    res.json({ reply: botReply });
+
   } catch (error) {
-    console.error("Chat endpoint hatası:", error.response?.data || error.message);
-    res.status(500).json({ error: '❌ ChatGPT API error' });
+    console.error('❌ OpenAI API hatası:', error.response?.data || error.message);
+    res.status(500).json({ error: 'OpenAI API hatası' });
   }
 });
 
 app.listen(port, () => {
-  console.log(`✅ Server is running on port ${port}`);
+  console.log(`🚀 Sunucu çalışıyor: http://localhost:${port}`);
 });
