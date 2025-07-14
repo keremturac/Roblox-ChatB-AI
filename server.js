@@ -1,4 +1,3 @@
-require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
 const app = express();
@@ -6,8 +5,8 @@ const port = process.env.PORT || 3000;
 
 app.use(express.json());
 
-// Test endpoint
-app.get('/test', (req, res) => {
+// Ana sayfa testi (tarayıcıdan test etmek için)
+app.get('/', (req, res) => {
   res.send('✅ API aktif, çalışıyor!');
 });
 
@@ -15,7 +14,7 @@ app.post('/chat', async (req, res) => {
   const userMessage = req.body.message;
 
   if (!userMessage) {
-    return res.status(400).json({ error: 'Mesaj boş olamaz.' });
+    return res.status(400).json({ error: 'Mesaj eksik.' });
   }
 
   try {
@@ -35,13 +34,12 @@ app.post('/chat', async (req, res) => {
 
     const botReply = response.data.choices[0].message.content;
     res.json({ reply: botReply });
-
   } catch (error) {
-    console.error('❌ OpenAI API hatası:', error.response?.data || error.message);
-    res.status(500).json({ error: 'OpenAI API hatası' });
+    console.error('OpenAI API error:', error.response?.data || error.message);
+    res.status(500).json({ error: 'ChatGPT API hatası' });
   }
 });
 
 app.listen(port, () => {
-  console.log(`🚀 Sunucu çalışıyor: http://localhost:${port}`);
+  console.log(`✅ Server is running on port ${port}`);
 });
